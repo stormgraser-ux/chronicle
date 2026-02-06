@@ -1,0 +1,14 @@
+{
+  "name": "chronicle",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Living portfolio app — what I built with Claude Code",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5200",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 5200"
+  },
+  "devDependencies": {
+    "vite": "^6.1.0"
+  }
+}
