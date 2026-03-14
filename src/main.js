@@ -6,6 +6,7 @@ import { hero, stats, howIWork, projects, journey } from './data/projects.js'
 
 const $ = (sel) => document.querySelector(sel)
 const $$ = (sel) => [...document.querySelectorAll(sel)]
+const base = import.meta.env.BASE_URL
 
 // ─── Section Renderers ───────────────────────────────
 
@@ -117,7 +118,7 @@ function renderProjectCard(project) {
         ${featured ? `
           <div class="project-screenshot-featured">
             <img
-              src="/screenshots/${featured.src}"
+              src="${base}screenshots/${featured.src}"
               alt="${featured.caption}"
               loading="lazy"
               class="clickable-img"
@@ -151,7 +152,7 @@ function renderProjectCard(project) {
               ${extras.map((s, i) => `
                 <div class="screenshot-thumb">
                   <img
-                    src="/screenshots/${s.src}"
+                    src="${base}screenshots/${s.src}"
                     alt="${s.caption}"
                     loading="lazy"
                     class="clickable-img"
@@ -292,7 +293,7 @@ function setupLightbox() {
       const project = projects.find(p => p.id === gallery)
       if (project) {
         galleryImages = project.screenshots.map(s => ({
-          src: `/screenshots/${s.src}`,
+          src: `${base}screenshots/${s.src}`,
           caption: s.caption,
         }))
       }
