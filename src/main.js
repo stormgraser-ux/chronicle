@@ -2,29 +2,10 @@
 // Living portfolio app — renders from data/projects.js
 // ─────────────────────────────────────────────────────
 
-import { hero, stats, architecture, launcherCode, projects, journey } from './data/projects.js'
+import { hero, stats, howIWork, projects, journey } from './data/projects.js'
 
 const $ = (sel) => document.querySelector(sel)
 const $$ = (sel) => [...document.querySelectorAll(sel)]
-
-// ─── Render Helpers ──────────────────────────────────
-
-function highlightBash(code) {
-  return code.split('\n').map(line => {
-    // Comment lines get one class, no further processing
-    if (/^\s*#/.test(line)) {
-      return `<span class="sh-comment">${line}</span>`
-    }
-    return line
-      .replace(/"([^"]*?)"/g, '<span class="sh-string">"$1"</span>')
-      .replace(/\b(if|then|else|fi|done|do|while|for|in|echo|exit|cd|source|export|read|pgrep|lsof|sleep|npx)\b/g, '<span class="sh-keyword">$1</span>')
-      .replace(/(\$\w+|\$\{[^}]+\})/g, '<span class="sh-var">$1</span>')
-  }).join('\n')
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
 
 // ─── Section Renderers ───────────────────────────────
 
@@ -34,7 +15,7 @@ function renderNav() {
       <div class="nav-inner">
         <a href="#top" class="nav-brand">Chronicle</a>
         <div class="nav-links">
-          <a href="#system" class="nav-link" data-section="system">System</a>
+          <a href="#how-it-works" class="nav-link" data-section="how-it-works">How It Works</a>
           <a href="#projects" class="nav-link" data-section="projects">Work</a>
           <a href="#journey" class="nav-link" data-section="journey">Journey</a>
         </div>
@@ -47,7 +28,7 @@ function renderHero() {
   return `
     <section class="hero" id="top">
       <div class="hero-content">
-        <p class="hero-label">Portfolio — February 2026</p>
+        <p class="hero-label">March 2026</p>
         <h1 class="hero-title">${hero.title}</h1>
         <p class="hero-subtitle">${hero.subtitle}</p>
         <p class="hero-description">${hero.description}</p>
@@ -61,7 +42,7 @@ function renderHero() {
         `).join('')}
       </div>
       <div class="hero-scroll-hint">
-        <span class="scroll-text">The system</span>
+        <span class="scroll-text">Keep scrolling</span>
         <svg class="scroll-arrow" width="16" height="24" viewBox="0 0 16 24" fill="none">
           <path d="M8 4 L8 18 M2 14 L8 20 L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -70,120 +51,29 @@ function renderHero() {
   `
 }
 
-function renderArchitecture() {
-  const layers = architecture.layers
-
+function renderHowIWork() {
   return `
-    <section class="section" id="system">
+    <section class="section" id="how-it-works">
       <div class="section-header reveal">
-        <h2 class="section-title">The System</h2>
-        <p class="section-intro">${architecture.intro}</p>
+        <h2 class="section-title">How I Work</h2>
+        <p class="section-intro">${howIWork.intro}</p>
       </div>
 
-      <div class="arch-diagram">
-        ${renderArchLayer(layers[0])}
-        <div class="arch-connector"><div class="arch-connector-line"></div></div>
-        ${renderPersonaLayer(layers[1])}
-        <div class="arch-connector"><div class="arch-connector-line"></div></div>
-        ${renderInfraLayer(layers[2])}
-      </div>
-
-      <div class="arch-screenshot reveal">
-        <img
-          src="/screenshots/architecture-multi-claude-terminals.png"
-          alt="Multiple Claude instances running in parallel"
-          loading="lazy"
-          class="arch-screenshot-img clickable-img"
-          data-caption="Multiple Claude personas running simultaneously — each in its own terminal with project context"
-        />
-        <p class="arch-screenshot-caption">Multiple Claude personas running simultaneously — each with its own project context</p>
-      </div>
-
-      <div class="terminal-block reveal">
-        <div class="terminal-header">
-          <div class="terminal-dots">
-            <span class="dot dot-red"></span>
-            <span class="dot dot-yellow"></span>
-            <span class="dot dot-green"></span>
-          </div>
-          <span class="terminal-title">~/bin/chronicle — actual launcher script</span>
-        </div>
-        <pre class="terminal-body"><code>${highlightBash(escapeHtml(launcherCode))}</code></pre>
-      </div>
-
-      <p class="arch-footnote reveal">Every project has one of these. Type <code>salvagerun</code>, <code>sweepsites</code>, or <code>bgq</code> — and the entire environment spins up.</p>
-    </section>
-  `
-}
-
-function renderArchLayer(layer) {
-  return `
-    <div class="arch-layer reveal" data-layer="${layer.id}">
-      <div class="arch-node arch-node-primary">
-        <span class="arch-node-icon">${layer.icon}</span>
-        <div class="arch-node-text">
-          <span class="arch-node-name">${layer.name}</span>
-          <span class="arch-node-sub">${layer.subtitle}</span>
-        </div>
-      </div>
-      <p class="arch-layer-desc">${layer.description}</p>
-      <ul class="arch-details">
-        ${layer.details.map(d => `<li>${d}</li>`).join('')}
-      </ul>
-    </div>
-  `
-}
-
-function renderPersonaLayer(layer) {
-  return `
-    <div class="arch-layer reveal" data-layer="${layer.id}">
-      <div class="arch-node">
-        <span class="arch-node-icon">${layer.icon}</span>
-        <div class="arch-node-text">
-          <span class="arch-node-name">${layer.name}</span>
-          <span class="arch-node-sub">${layer.subtitle}</span>
-        </div>
-      </div>
-      <p class="arch-layer-desc">${layer.description}</p>
-      <div class="persona-grid">
-        ${layer.list.map(p => {
-          // Find the matching project to link the chip
-          const proj = projects.find(pr => pr.persona.name === p.name)
-          const linkId = proj ? proj.id : ''
-          return `
-          <div class="persona-chip" style="--pc: ${p.color}" ${linkId ? `data-goto-project="${linkId}"` : ''}>
-            <span class="persona-emoji">${p.emoji}</span>
-            <span class="persona-name">${p.name}</span>
-          </div>
-        `}).join('')}
-      </div>
-    </div>
-  `
-}
-
-function renderInfraLayer(layer) {
-  return `
-    <div class="arch-layer reveal" data-layer="${layer.id}">
-      <div class="arch-node">
-        <span class="arch-node-icon">${layer.icon}</span>
-        <div class="arch-node-text">
-          <span class="arch-node-name">${layer.name}</span>
-          <span class="arch-node-sub">${layer.subtitle}</span>
-        </div>
-      </div>
-      <p class="arch-layer-desc">${layer.description}</p>
-      <div class="infra-grid">
-        ${layer.components.map(c => `
-          <div class="infra-card">
-            <div class="infra-card-header">
-              <span class="infra-card-name">${c.name}</span>
-              <span class="infra-card-stat">${c.stat}</span>
+      <div class="persona-grid-standalone reveal">
+        <p class="persona-grid-label">Each project has its own AI partner:</p>
+        <div class="persona-grid">
+          ${howIWork.personas.map(p => {
+            const proj = projects.find(pr => pr.persona.name === p.name)
+            const linkId = proj ? proj.id : ''
+            return `
+            <div class="persona-chip" style="--pc: ${p.color}" ${linkId ? `data-goto-project="${linkId}"` : ''}>
+              <span class="persona-emoji">${p.emoji}</span>
+              <span class="persona-name">${p.name}</span>
             </div>
-            <p class="infra-card-detail">${c.detail}</p>
-          </div>
-        `).join('')}
+          `}).join('')}
+        </div>
       </div>
-    </div>
+    </section>
   `
 }
 
@@ -192,7 +82,7 @@ function renderProjects() {
     <section class="section" id="projects">
       <div class="section-header reveal">
         <h2 class="section-title">The Work</h2>
-        <p class="section-intro">What the system produces. Each project was built with its own Claude persona — a dedicated AI partner with domain expertise and project memory.</p>
+        <p class="section-intro">Everything I've built since TheColdBetween. Tap any card to see more.</p>
       </div>
       <div class="projects-list">
         ${projects.map(renderProjectCard).join('')}
@@ -285,14 +175,14 @@ function renderJourney() {
     <section class="section" id="journey">
       <div class="section-header reveal">
         <h2 class="section-title">The Journey</h2>
-        <p class="section-intro">Five weeks. Zero prior Claude Code experience. This is the timeline.</p>
+        <p class="section-intro">From one experimental game to 23 projects in two months.</p>
       </div>
       <div class="timeline">
         ${journey.map((m, i) => `
           <div class="timeline-item reveal" style="--delay: ${i * 80}ms">
             <div class="timeline-marker"></div>
             <div class="timeline-content">
-              <span class="timeline-week">${m.week}</span>
+              <span class="timeline-week">${m.phase}</span>
               <h3 class="timeline-title">${m.title}</h3>
               <p class="timeline-text">${m.text}</p>
             </div>
@@ -306,23 +196,12 @@ function renderJourney() {
 function renderFooter() {
   return `
     <footer class="footer">
-      <div class="footer-mobile reveal">
-        <img
-          src="/screenshots/mobile-claude-termius.jpg"
-          alt="Running Claude from a phone via Termius SSH"
-          loading="lazy"
-          class="footer-mobile-img clickable-img"
-          data-caption="Claude Code running from a phone via Termius SSH — the system works from anywhere"
-        />
-        <p class="footer-mobile-caption">The system works from anywhere. Claude Code via Termius SSH on a phone.</p>
-      </div>
       <div class="footer-content reveal">
-        <p class="footer-line">Built by Scribe <span class="footer-emoji">📜</span></p>
-        <p class="footer-sub">Vanilla JS. No frameworks. The app is part of the portfolio.</p>
+        <p class="footer-line">Built with Claude Code</p>
         <div class="footer-meta">
           <a href="https://github.com/stormgraser-ux" class="footer-link" target="_blank" rel="noopener">GitHub</a>
           <span class="footer-sep">·</span>
-          <span class="footer-date">February 2026</span>
+          <span class="footer-date">March 2026</span>
         </div>
       </div>
     </footer>
@@ -337,7 +216,7 @@ function init() {
     ${renderNav()}
     <main class="main">
       ${renderHero()}
-      ${renderArchitecture()}
+      ${renderHowIWork()}
       ${renderProjects()}
       ${renderJourney()}
       ${renderFooter()}
@@ -391,10 +270,16 @@ function setupScrollReveal() {
 
 // ─── Image Lightbox ──────────────────────────────────
 
+// Track whether the lightbox is open so card-expand can ignore ghost clicks
+let lightboxOpen = false
+
 function setupLightbox() {
   document.addEventListener('click', (e) => {
     const img = e.target.closest('.clickable-img')
     if (!img) return
+
+    // Stop the click from bubbling to card-expand handler
+    e.stopPropagation()
 
     const src = img.src
     const caption = img.dataset.caption || ''
@@ -419,35 +304,92 @@ function setupLightbox() {
 
 function openLightbox(images, startIndex) {
   let current = startIndex
+  lightboxOpen = true
 
   const overlay = document.createElement('div')
   overlay.className = 'lightbox'
 
-  function render() {
+  // Update image/caption/counter in-place instead of replacing the DOM.
+  // This prevents touch state from being nuked mid-gesture.
+  function updateImage() {
     const img = images[current]
-    const hasMultiple = images.length > 1
-    overlay.innerHTML = `
-      <div class="lightbox-backdrop"></div>
-      <div class="lightbox-content">
-        ${hasMultiple ? `<button class="lightbox-nav lightbox-prev" ${current === 0 ? 'disabled' : ''}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>` : ''}
-        <div class="lightbox-image-wrap">
-          <img src="${img.src}" alt="${img.caption}" class="lightbox-image" />
-          ${img.caption ? `<p class="lightbox-caption">${img.caption}</p>` : ''}
-          ${hasMultiple ? `<p class="lightbox-counter">${current + 1} / ${images.length}</p>` : ''}
-        </div>
-        ${hasMultiple ? `<button class="lightbox-nav lightbox-next" ${current === images.length - 1 ? 'disabled' : ''}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>` : ''}
-      </div>
-      <button class="lightbox-close">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-    `
+    const imgEl = overlay.querySelector('.lightbox-image')
+    const captionEl = overlay.querySelector('.lightbox-caption')
+    const counterEl = overlay.querySelector('.lightbox-counter')
+    const prevBtn = overlay.querySelector('.lightbox-prev')
+    const nextBtn = overlay.querySelector('.lightbox-next')
+
+    if (imgEl) {
+      imgEl.src = img.src
+      imgEl.alt = img.caption
+    }
+    if (captionEl) captionEl.textContent = img.caption || ''
+    if (counterEl) counterEl.textContent = `${current + 1} / ${images.length}`
+    if (prevBtn) prevBtn.disabled = current === 0
+    if (nextBtn) nextBtn.disabled = current === images.length - 1
   }
 
-  render()
+  // Build the initial DOM (only runs once)
+  const img = images[current]
+  const hasMultiple = images.length > 1
+
+  const backdrop = document.createElement('div')
+  backdrop.className = 'lightbox-backdrop'
+
+  const content = document.createElement('div')
+  content.className = 'lightbox-content'
+
+  let prevBtn = null
+  if (hasMultiple) {
+    prevBtn = document.createElement('button')
+    prevBtn.className = 'lightbox-nav lightbox-prev'
+    if (current === 0) prevBtn.disabled = true
+    prevBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    content.appendChild(prevBtn)
+  }
+
+  const imageWrap = document.createElement('div')
+  imageWrap.className = 'lightbox-image-wrap'
+
+  const imgEl = document.createElement('img')
+  imgEl.src = img.src
+  imgEl.alt = img.caption
+  imgEl.className = 'lightbox-image'
+  imageWrap.appendChild(imgEl)
+
+  if (img.caption) {
+    const captionEl = document.createElement('p')
+    captionEl.className = 'lightbox-caption'
+    captionEl.textContent = img.caption
+    imageWrap.appendChild(captionEl)
+  }
+
+  if (hasMultiple) {
+    const counterEl = document.createElement('p')
+    counterEl.className = 'lightbox-counter'
+    counterEl.textContent = `${current + 1} / ${images.length}`
+    imageWrap.appendChild(counterEl)
+  }
+
+  content.appendChild(imageWrap)
+
+  let nextBtn = null
+  if (hasMultiple) {
+    nextBtn = document.createElement('button')
+    nextBtn.className = 'lightbox-nav lightbox-next'
+    if (current === images.length - 1) nextBtn.disabled = true
+    nextBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    content.appendChild(nextBtn)
+  }
+
+  const closeBtn = document.createElement('button')
+  closeBtn.className = 'lightbox-close'
+  closeBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+
+  overlay.appendChild(backdrop)
+  overlay.appendChild(content)
+  overlay.appendChild(closeBtn)
+
   document.body.appendChild(overlay)
   document.body.style.overflow = 'hidden'
   requestAnimationFrame(() => overlay.classList.add('lightbox-open'))
@@ -455,43 +397,80 @@ function openLightbox(images, startIndex) {
   function close() {
     overlay.classList.remove('lightbox-open')
     document.body.style.overflow = ''
-    setTimeout(() => overlay.remove(), 250)
+    // Kill pointer events during close animation so taps don't fall through
+    // to cards underneath (the "ghost click" problem on mobile)
+    overlay.style.pointerEvents = 'none'
+    setTimeout(() => {
+      overlay.remove()
+      // Extra delay before clearing the flag so any lingering
+      // ghost click on the card below gets caught and ignored
+      setTimeout(() => { lightboxOpen = false }, 100)
+    }, 250)
   }
 
+  // Track whether touch moved — distinguishes taps from swipes
+  let didTouchMove = false
+
   overlay.addEventListener('click', (e) => {
+    // If the user was swiping, don't treat it as a tap
+    if (didTouchMove) {
+      didTouchMove = false
+      return
+    }
+
     if (e.target.closest('.lightbox-prev') && current > 0) {
       current--
-      render()
+      updateImage()
     } else if (e.target.closest('.lightbox-next') && current < images.length - 1) {
       current++
-      render()
+      updateImage()
     } else if (e.target.closest('.lightbox-close') || e.target.closest('.lightbox-backdrop')) {
       close()
     }
   })
 
-  // Touch swipe support
+  // Touch swipe — properly track movement to avoid false triggers
   let touchStartX = 0
+  let touchStartY = 0
+  let touchMoved = false
+
   overlay.addEventListener('touchstart', (e) => {
     touchStartX = e.touches[0].clientX
+    touchStartY = e.touches[0].clientY
+    touchMoved = false
+    didTouchMove = false
+  }, { passive: true })
+
+  overlay.addEventListener('touchmove', (e) => {
+    const dx = Math.abs(e.touches[0].clientX - touchStartX)
+    const dy = Math.abs(e.touches[0].clientY - touchStartY)
+    // 10px dead zone — sloppy taps won't count as movement
+    if (dx > 10 || dy > 10) {
+      touchMoved = true
+      didTouchMove = true
+    }
   }, { passive: true })
 
   overlay.addEventListener('touchend', (e) => {
-    const diff = e.changedTouches[0].clientX - touchStartX
-    if (Math.abs(diff) > 60) {
-      if (diff > 0 && current > 0) { current--; render() }
-      else if (diff < 0 && current < images.length - 1) { current++; render() }
+    if (!touchMoved) return // Clean tap — let click handler deal with it
+
+    const dx = e.changedTouches[0].clientX - touchStartX
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY)
+
+    // Swipe: horizontal > 80px AND mostly horizontal (not diagonal scroll)
+    if (Math.abs(dx) > 80 && Math.abs(dx) > dy * 1.5) {
+      if (dx > 0 && current > 0) { current--; updateImage() }
+      else if (dx < 0 && current < images.length - 1) { current++; updateImage() }
     }
   }, { passive: true })
 
   // Keyboard support
   function onKey(e) {
     if (e.key === 'Escape') close()
-    if (e.key === 'ArrowLeft' && current > 0) { current--; render() }
-    if (e.key === 'ArrowRight' && current < images.length - 1) { current++; render() }
+    if (e.key === 'ArrowLeft' && current > 0) { current--; updateImage() }
+    if (e.key === 'ArrowRight' && current < images.length - 1) { current++; updateImage() }
   }
   document.addEventListener('keydown', onKey)
-  overlay.addEventListener('remove', () => document.removeEventListener('keydown', onKey))
 
   // Clean up key listener when overlay is removed
   const obs = new MutationObserver(() => {
@@ -506,7 +485,7 @@ function openLightbox(images, startIndex) {
 // ─── Nav Highlight on Scroll ─────────────────────────
 
 function setupNavHighlight() {
-  const sections = ['system', 'projects', 'journey']
+  const sections = ['how-it-works', 'projects', 'journey']
   const links = $$('.nav-link')
 
   const observer = new IntersectionObserver((entries) => {
@@ -565,6 +544,9 @@ function setupCardExpand() {
   document.addEventListener('click', (e) => {
     // Don't expand when clicking images (lightbox handles those)
     if (e.target.closest('.clickable-img')) return
+
+    // Ignore ghost clicks that fall through after lightbox closes
+    if (lightboxOpen) return
 
     const preview = e.target.closest('.project-card-preview')
     if (!preview) return
